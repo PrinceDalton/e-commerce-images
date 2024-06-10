@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storefront
+spec:
+  # serviceAccountName: storefront-service-account
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storefront
+  template:
+    metadata:
+      labels:
+        app: storefront
+    spec:
+      containers:
+        - name: storefront
+          image: prinsoo/e-commerce:storefront
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          env:
+            - name: SERVER_API_HOST
+              value: "http://server"
+            - name: SERVER_API_PORT
+              value: "3000"
+            - name: SERVER_API_PATH
+              value: "shop-api"
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storefront-service
+spec:
+  selector:
+    app: storefront
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4000  # Assuming your storefront listens on port 4000
+      nodePort: 30005
+  type: NodePort  
+
